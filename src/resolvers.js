@@ -1,0 +1,153 @@
+const typeDefs = require("./schema");
+const { paginateResults } = require("./utils");
+
+const resolvers = {
+  MoviesType: {
+    POPULAR: "popular",
+    UPCOMING: "upcoming",
+    PLAYING: "now_playing",
+  },
+  VideoType: {
+    CLIP: "Clip",
+    TRAILER: "Trailer",
+    TEASER: "Teaser",
+    BTS: "Behind the Scenes",
+    BLOOPERS: "Bloopers",
+    FEATURETTE: "Featurette",
+  },
+  Query: {
+    movies: async (_, { type, after, size = 8, page = 1 }, { dataSources }) => {
+      try {
+        const data = await dataSources.MovieAPI.getMovies({ type: type, page });
+
+        const Movies = paginateResults({ after, size, results: data });
+
+        return Movies;
+      } catch (e) {}
+    },
+    similarMovies: async (_, { id, after, size = 8 }, { dataSources }) => {
+      try {
+        const data = await dataSources.MovieAPI.getSimilarMoviesById({ id });
+
+        const Movies = paginateResults({ after, size, results: data });
+
+        return Movies;
+      } catch (e) {}
+    },
+    movie: async (_, { id }, { dataSources }) => {
+      return await dataSources.MovieAPI.getMovieById(id);
+    },
+    trendingMovies: async (_, args, { dataSources }) => {
+      return await dataSources.MovieAPI.getTrendingMovies();
+    },
+    latestMovie: async (_, args, { dataSources }) => {
+      return await dataSources.MovieAPI.getLatestMovie();
+    },
+
+    // latestMovies: async (_, args, { dataSources }) => {
+    //   return await dataSources.MovieAPI.getLatestMovies();
+    // },
+    seriesList: async (_, args, { dataSources }) => {
+      return await dataSources.SeriesAPI.getTopRatedSeries();
+    },
+    series: async (_, { id }, { dataSources }) => {
+      return await dataSources.SeriesAPI.getSeriesById(id);
+    },
+    trendingSeries: async (_, args, { dataSources }) => {
+      return await dataSources.SeriesAPI.getTrendingSeries();
+    },
+    MovieGenre: async (_, { genres, after, size = 8 }, { dataSources }) => {
+
+      
+      try {
+        const data = await dataSources.MovieAPI.getMoviesByGenre({
+          genres,
+        });
+
+        const Movies = paginateResults({ after, size, results: data });
+
+        return Movies;
+      } catch (e) {}
+    },
+    videosById: async (
+      _,
+      { id, types, size = 8 },
+
+      { dataSources }
+    ) => {
+      try {
+        const data = await dataSources.MovieAPI.getVideosByMovieId({
+          id,
+        });
+
+        const response = {
+          clip: [],
+          trailer: [],
+          teaser: [],
+          bts: [],
+          bloopers: [],
+          featurette: [],
+        };
+
+        if (Object.keys(data).length === 0) {
+          return null;
+        }
+
+        types.forEach((type) => {
+          var current = data[type];
+          if (!current || current.length === 0) {
+            return;
+          }
+          const videos = current.splice(0, Math.min(current.length, size));
+          response[type.toLowerCase()] = videos;
+        });
+
+        return response;
+      } catch (e) {}
+    },
+  },
+  Movie: {
+    videos: async ({ id }, { types, size = 1, after }, { dataSources }) => {
+      try {
+        const data = await dataSources.MovieAPI.getVideosByMovieId({
+          id,
+        });
+
+        const response = {
+          clip: [],
+          trailer: [],
+          teaser: [],
+          bts: [],
+          bloopers: [],
+          featurette: [],
+        };
+
+        if (Object.keys(data).length === 0) {
+          return null;
+        }
+
+        types.forEach((type) => {
+          var current = data[type];
+          if (!current || current.length === 0) {
+            return;
+          }
+          const filter = current.filter((video) => video.official === true);
+          const videos = filter.splice(0, Math.min(current.length, size));
+          response[type.toLowerCase()] = videos;
+        });
+
+        return response;
+      } catch (e) {}
+    },
+    images: async ({ id }, args, { dataSources }) => {
+      return await dataSources.MovieAPI.getImagesByMovieId(id);
+    },
+  },
+  Series: {
+    videos: async ({ id }, args, { dataSources }) => {
+      return await dataSources.SeriesAPI.getVideosBySeriesId(id);
+    },
+  },
+};
+
+module.exports = resolvers;
