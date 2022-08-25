@@ -1,10 +1,8 @@
-require("dotenv").config();
 const { ApolloServer } = require("apollo-server");
 const typeDefs = require("./schema");
 const resolvers = require("./resolvers");
 const MovieAPI = require("./datasources/movie-api");
-const SeriesAPI=require("./datasources/series-api")
-
+const SeriesAPI = require("./datasources/series-api");
 
 async function startApolloServer(typeDefs, resolvers) {
   const server = new ApolloServer({
@@ -13,7 +11,7 @@ async function startApolloServer(typeDefs, resolvers) {
     dataSources: () => {
       return {
         MovieAPI: new MovieAPI(),
-        SeriesAPI:new SeriesAPI(),
+        SeriesAPI: new SeriesAPI(),
       };
     },
     context: ({ req }) => ({
@@ -21,8 +19,7 @@ async function startApolloServer(typeDefs, resolvers) {
     }),
   });
 
-  const { url, port } = await server.listen({ port: process.env.PORT || 4000});
-   
+  const { url, port } = await server.listen({ port: process.env.PORT || 4000 });
 }
 
 startApolloServer(typeDefs, resolvers);
