@@ -38,6 +38,7 @@ const typeDefs = gql`
     MovieGenre(genres: [String]!, after: Int, size: Int): Movies
     latestMovie: Movie
     similarMovies(id: ID!, after: Int, size: Int): Movies
+    recommendedMovies(id: ID!, after: Int, size: Int): Movies
     videosById(
       id: ID!
       types: [VideoType]
@@ -53,7 +54,7 @@ const typeDefs = gql`
     title: String
     backdropPath: String
     videos(types: [VideoType], after: Int, size: Int, page: Int): VideosByType
-    images: [Image]
+    images: Image
     overview: String
     popularity: String
     adult: String
@@ -72,10 +73,11 @@ const typeDefs = gql`
     type: String
   }
   type Image {
-    aspect_ratio: Float
-    file_path: String
+    aspectRatio: Float
+    filePath: String
     height: Int
     width: Int
+    en: String
   }
   type Series {
     posterPath: String

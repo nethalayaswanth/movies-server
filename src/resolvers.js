@@ -34,6 +34,17 @@ const resolvers = {
         return Movies;
       } catch (e) {}
     },
+    recommendedMovies: async (_, { id, after, size = 8 }, { dataSources }) => {
+      try {
+        const data = await dataSources.MovieAPI.getRecommendedMoviesById({
+          id,
+        });
+
+        const Movies = paginateResults({ after, size, results: data });
+
+        return Movies;
+      } catch (e) {}
+    },
     movie: async (_, { id }, { dataSources }) => {
       return await dataSources.MovieAPI.getMovieById(id);
     },
@@ -44,9 +55,6 @@ const resolvers = {
       return await dataSources.MovieAPI.getLatestMovie();
     },
 
-    // latestMovies: async (_, args, { dataSources }) => {
-    //   return await dataSources.MovieAPI.getLatestMovies();
-    // },
     seriesList: async (_, args, { dataSources }) => {
       return await dataSources.SeriesAPI.getTopRatedSeries();
     },
@@ -57,8 +65,6 @@ const resolvers = {
       return await dataSources.SeriesAPI.getTrendingSeries();
     },
     MovieGenre: async (_, { genres, after, size = 8 }, { dataSources }) => {
-
-      
       try {
         const data = await dataSources.MovieAPI.getMoviesByGenre({
           genres,
@@ -71,7 +77,7 @@ const resolvers = {
     },
     videosById: async (
       _,
-      { id, types, size = 8 },
+      { id, types, size = 12 },
 
       { dataSources }
     ) => {
