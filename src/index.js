@@ -8,14 +8,14 @@ async function startApolloServer(typeDefs, resolvers) {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    csrfPrevention: true,
-    cors: {
-      origin: [
-        "https://monyflix.vercel.app",
-        "http://localhost:3000/",
-        "https://studio.apollographql.com",
-      ],
-    },
+    // csrfPrevention: true,
+    // cors: {
+    //   origin: [
+    //     "https://monyflix.vercel.app",
+    //     "http://localhost:3000/",
+    //     "https://studio.apollographql.com",
+    //   ],
+    // },
     dataSources: () => {
       return {
         MovieAPI: new MovieAPI(),
