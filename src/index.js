@@ -11,7 +11,8 @@ async function startApolloServer(typeDefs, resolvers) {
     csrfPrevention: true,
     cors: {
       origin: [
-        "https://monyflix.vercel.app/",
+        "https://monyflix.vercel.app",
+        "http://localhost:3000/",
         "https://studio.apollographql.com",
       ],
     },
