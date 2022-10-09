@@ -48,8 +48,14 @@ const resolvers = {
     movie: async (_, { id }, { dataSources }) => {
       return await dataSources.MovieAPI.getMovieById(id);
     },
-    trendingMovies: async (_, args, { dataSources }) => {
-      return await dataSources.MovieAPI.getTrendingMovies();
+    trendingMovies: async (_, { id, after, size = 8 }, { dataSources }) => {
+      try {
+        const data = await dataSources.MovieAPI.getTrendingMovies();
+
+        const Movies = paginateResults({ after, size, results: data });
+
+        return Movies;
+      } catch (e) {}
     },
     latestMovie: async (_, args, { dataSources }) => {
       return await dataSources.MovieAPI.getLatestMovie();

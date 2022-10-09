@@ -17,6 +17,7 @@ const typeDefs = gql`
     POPULAR
     UPCOMING
     PLAYING
+    TRENDING
   }
   enum VideoType {
     CLIP
@@ -33,7 +34,7 @@ const typeDefs = gql`
     seriesList: [Series]
     series(id: ID!): Series
     trendingSeries: [Series]
-    trendingMovies: [Movie]
+    trendingMovies(after: Int, size: Int): Movies
     trending: [Media]
     MovieGenre(genres: [String]!, after: Int, size: Int): Movies
     latestMovie: Movie

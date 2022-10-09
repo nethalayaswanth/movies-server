@@ -4,11 +4,12 @@ const resolvers = require("./resolvers");
 const MovieAPI = require("./datasources/movie-api");
 const SeriesAPI = require("./datasources/series-api");
 
+
 async function startApolloServer(typeDefs, resolvers) {
   const server = new ApolloServer({
     typeDefs,
     resolvers,
-    // csrfPrevention: true,
+    csrfPrevention: true,
     // cors: {
     //   origin: [
     //     "https://monyflix.vercel.app",
@@ -23,7 +24,7 @@ async function startApolloServer(typeDefs, resolvers) {
       };
     },
     context: ({ req }) => ({
-      apiKey: process.env.MOVIE_API_KEY,
+      apiKey: 'fa3d6387121a694b9ea90c9a7655ac87',
     }),
   });
 
