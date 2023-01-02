@@ -4,6 +4,7 @@ const resolvers = require("./resolvers");
 const MovieAPI = require("./datasources/movie-api");
 const SeriesAPI = require("./datasources/series-api");
 
+require('dotenv')
 
 async function startApolloServer(typeDefs, resolvers) {
   const server = new ApolloServer({
@@ -24,7 +25,7 @@ async function startApolloServer(typeDefs, resolvers) {
       };
     },
     context: ({ req }) => ({
-      apiKey: 'fa3d6387121a694b9ea90c9a7655ac87',
+      apiKey: process.env.MOVIE_API_KEY,
     }),
   });
 
