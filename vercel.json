@@ -11,7 +11,7 @@
       
       "src": "/(.*)",
      
-      "dest": "src/index.jsindex.js"
+      "dest": "src/index.js"
     }
   ]
 }
