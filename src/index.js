@@ -4,7 +4,7 @@ const resolvers = require("./resolvers");
 const MovieAPI = require("./datasources/movie-api");
 const SeriesAPI = require("./datasources/series-api");
 
-require('dotenv')
+require("dotenv").config();
 
 async function startApolloServer(typeDefs, resolvers) {
   const server = new ApolloServer({
