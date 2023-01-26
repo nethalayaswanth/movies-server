@@ -55,7 +55,7 @@ const typeDefs = gql`
     title: String
     backdropPath: String
     videos(types: [VideoType], after: Int, size: Int, page: Int): VideosByType
-    images: Image
+    landscapePosterPath: String
     overview: String
     popularity: String
     adult: String

@@ -44,13 +44,7 @@ class MovieAPI extends RESTDataSource {
     var query = new URLSearchParams();
     query.append("with_genres", genre);
     query.append("sort_by", "popularity.desc");
-    query.append("primary_release_year","2022");
-    query.append("region", "US");
-   // query.append("with_original_language", "en");
 
-   
-
-   
     const response = await this.get(`/discover/movie?` + query.toString());
 
   
@@ -98,15 +92,17 @@ class MovieAPI extends RESTDataSource {
     return types;
   }
   async getImagesByMovieId(id) {
-    const response = await this.get(`/movie/${id}/images`);
+    const response = await this.get(
+      `/movie/${id}/images?language=en-US&include_image_language=en,null`
+    );
     let poster = [];
     let backDrop = [];
     response.backdrops.forEach((image) => {
       if (image.iso_639_1 === "en") {
-        poster.push(this.ImageReducer(image));
+        poster.push(image.file_path);
         return;
       }
-      backDrop.push(this.ImageReducer(image));
+      backDrop.push(image.file_path);
     });
     const p = Math.floor(Math.random() * poster.length);
     const b = Math.floor(Math.random() * backDrop.length);

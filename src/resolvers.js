@@ -151,7 +151,7 @@ const resolvers = {
         return response;
       } catch (e) {}
     },
-    images: async ({ id }, args, { dataSources }) => {
+    landscapePosterPath: async ({ id }, args, { dataSources }) => {
       return await dataSources.MovieAPI.getImagesByMovieId(id);
     },
   },
