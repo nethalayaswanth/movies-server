@@ -48,20 +48,21 @@ const resolvers = {
     movie: async (_, { id }, { dataSources }) => {
       return await dataSources.MovieAPI.getMovieById(id);
     },
-    trendingMovies: async (_, { id, after, size = 8 }, { dataSources }) => {
+    trendingMovies: async (_, { after, size = 8 }, { dataSources }) => {
       try {
-        const data = await dataSources.MovieAPI.getTrendingMovies();
+        const results = await dataSources.MovieAPI.getTrendingMovies();
 
-        const Movies = paginateResults({ after, size, results: data });
+        const Movies = paginateResults({ after, size, results });
 
         return Movies;
       } catch (e) {}
     },
-    latestMovie: async (_, { id, after, size = 8 }, { dataSources }) => {
-      const { data } = paginateResults({ after, size, results: data });
+
+    latestMovie: async (_, { after, size = 8 }, { dataSources }) => {
+      const results = dataSources.MovieAPI.getLatestMovie();
+      const { data } = paginateResults({ after, size, results });
       return data;
     },
-
     seriesList: async (_, args, { dataSources }) => {
       return await dataSources.SeriesAPI.getTopRatedSeries();
     },
