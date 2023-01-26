@@ -30,11 +30,9 @@ class MovieAPI extends RESTDataSource {
 
   async getLatestMovie() {
     const response = await this.get(`trending/movie/day`);
-
-    const len = response?.results.length;
-    const i = Math.floor(Math.random() * (len - 1));
-    const movie = response?.results[i];
-    return movie && this.movieReducer(movie);
+    return typeof response === "object"
+      ? response.results.map((movie) => this.movieReducer(movie))
+      : [];
   }
 
   async getMoviesByGenre({ genres }) {

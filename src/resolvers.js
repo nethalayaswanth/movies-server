@@ -58,7 +58,8 @@ const resolvers = {
       } catch (e) {}
     },
     latestMovie: async (_, args, { dataSources }) => {
-      return await dataSources.MovieAPI.getLatestMovie();
+       const {data} = paginateResults({ after, size, results: data });
+      return data;
     },
 
     seriesList: async (_, args, { dataSources }) => {

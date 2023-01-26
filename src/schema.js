@@ -37,7 +37,7 @@ const typeDefs = gql`
     trendingMovies(after: Int, size: Int): Movies
     trending: [Media]
     MovieGenre(genres: [String]!, after: Int, size: Int): Movies
-    latestMovie: Movie
+    latestMovie: [Movie]
     similarMovies(id: ID!, after: Int, size: Int): Movies
     recommendedMovies(id: ID!, after: Int, size: Int): Movies
     videosById(
