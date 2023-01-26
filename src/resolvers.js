@@ -57,8 +57,8 @@ const resolvers = {
         return Movies;
       } catch (e) {}
     },
-    latestMovie: async (_, args, { dataSources }) => {
-       const {data} = paginateResults({ after, size, results: data });
+    latestMovie: async (_, { id, after, size = 8 }, { dataSources }) => {
+      const { data } = paginateResults({ after, size, results: data });
       return data;
     },
 
