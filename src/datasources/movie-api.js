@@ -7,12 +7,16 @@ class MovieAPI extends RESTDataSource {
     this.baseURL = "https://api.themoviedb.org/3/";
   }
   willSendRequest(request) {
-
- 
     request.params.set("api_key", this.context.apiKey);
-
   }
 
+  async searchMovies({ page = 1, type,key }) {
+    const response = await this.get(`/search/movie?query=${key}&page=${page}`);
+
+    return typeof response === "object"
+      ? response.results.map((movie) => this.movieReducer(movie))
+      : [];
+  }
   async getMovies({ page = 1, type }) {
     const response = await this.get(`/movie/${type}?page=${page}`);
 
@@ -31,8 +35,7 @@ class MovieAPI extends RESTDataSource {
   async getLatestMovie() {
     const response = await this.get(`trending/movie/day`);
 
-   
-    return  typeof response === "object"
+    return typeof response === "object"
       ? response.results.map((movie) => this.movieReducer(movie))
       : [];
   }
@@ -40,14 +43,11 @@ class MovieAPI extends RESTDataSource {
   async getMoviesByGenre({ genres }) {
     const genre = genres.join(",");
 
-    
     var query = new URLSearchParams();
     query.append("with_genres", genre);
     query.append("sort_by", "popularity.desc");
 
     const response = await this.get(`/discover/movie?` + query.toString());
-
-  
 
     return typeof response === "object"
       ? response.results.map((movie) => this.movieReducer(movie))

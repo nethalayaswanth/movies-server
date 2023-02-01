@@ -16,6 +16,15 @@ const resolvers = {
     FEATURETTE: "Featurette",
   },
   Query: {
+    search: async (_, { key, after, size = 20, page = 1 }, { dataSources }) => {
+      try {
+        const data = await dataSources.MovieAPI.searchMovies({ key, page });
+
+        const Movies = paginateResults({ after, size, results: data });
+
+        return Movies;
+      } catch (e) {}
+    },
     movies: async (_, { type, after, size = 8, page = 1 }, { dataSources }) => {
       try {
         const data = await dataSources.MovieAPI.getMovies({ type: type, page });

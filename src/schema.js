@@ -30,6 +30,7 @@ const typeDefs = gql`
 
   type Query {
     movies(type: MoviesType!, after: Int, size: Int): Movies
+    search(key: String!, after: Int, size: Int): Movies
     movie(id: ID!): Movie
     seriesList: [Series]
     series(id: ID!): Series
@@ -50,12 +51,11 @@ const typeDefs = gql`
   }
 
   type Movie {
+    landscapePosterPath: String
     posterPath: String
     id: Int
     title: String
     backdropPath: String
-    videos(types: [VideoType], after: Int, size: Int, page: Int): VideosByType
-    landscapePosterPath: String
     overview: String
     popularity: String
     adult: String
@@ -63,6 +63,7 @@ const typeDefs = gql`
     tagline: String
     runtime: Int
     genres: [String]
+    videos(types: [VideoType], after: Int, size: Int, page: Int): VideosByType
   }
 
   type Video {
