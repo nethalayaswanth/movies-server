@@ -1,6 +1,12 @@
 const typeDefs = require("./schema");
 const { paginateResults } = require("./utils");
 
+const defaultResponse = {
+  data: [],
+  cursor: null,
+  hasMore: false,
+  hasNextPage: false,
+};
 const resolvers = {
   MoviesType: {
     POPULAR: "popular",
@@ -18,12 +24,17 @@ const resolvers = {
   Query: {
     search: async (_, { key, after, size = 20, page = 1 }, { dataSources }) => {
       try {
-        const data = await dataSources.MovieAPI.searchMovies({ key, page });
+        const { nextPage, results }  = await dataSources.MovieAPI.searchMovies({ key, page });
 
-        const Movies = paginateResults({ after, size, results: data });
+        const Movies = paginateResults({ after, size, results });
 
-        return Movies;
-      } catch (e) {}
+        console.log(Movies);
+
+         return { ...Movies, nextPage };
+      } catch (e) {
+        
+        return null;
+      }
     },
     movies: async (_, { type, after, size = 8, page = 1 }, { dataSources }) => {
       try {
@@ -81,16 +92,27 @@ const resolvers = {
     trendingSeries: async (_, args, { dataSources }) => {
       return await dataSources.SeriesAPI.getTrendingSeries();
     },
-    MovieGenre: async (_, { genres, after, size = 8 }, { dataSources }) => {
+    MovieGenre: async (
+      _,
+      { genres, after, size = 8, page = 1 },
+      { dataSources }
+    ) => {
       try {
-        const data = await dataSources.MovieAPI.getMoviesByGenre({
-          genres,
-        });
+        const { nextPage, results } =
+          await dataSources.MovieAPI.getMoviesByGenre({
+            genres,
+            page,
+          });
 
-        const Movies = paginateResults({ after, size, results: data });
+    
 
-        return Movies;
-      } catch (e) {}
+        const Movies = paginateResults({ after, size, results });
+
+        return { ...Movies, nextPage };
+      } catch (e) {
+       
+        return null;
+      }
     },
     videosById: async (
       _,

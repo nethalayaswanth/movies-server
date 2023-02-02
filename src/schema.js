@@ -29,18 +29,24 @@ const typeDefs = gql`
   }
 
   type Query {
-    movies(type: MoviesType!, after: Int, size: Int): Movies
-    search(key: String!, after: Int, size: Int): Movies
+    movies(type: MoviesType!, after: Int, size: Int, page: Int): Movies
+    search(key: String!, after: Int, size: Int, page: Int): Movies
     movie(id: ID!): Movie
     seriesList: [Series]
     series(id: ID!): Series
     trendingSeries: [Series]
-    trendingMovies(after: Int, size: Int): Movies
+    trendingMovies(after: Int, size: Int, page: Int): Movies
     trending: [Media]
-    MovieGenre(genres: [String]!, after: Int, size: Int): Movies
+    MovieGenre(
+      genres: [String]!
+      after: Int
+      size: Int
+      page: Int
+      page: Int
+    ): Movies
     latestMovie: [Movie]
-    similarMovies(id: ID!, after: Int, size: Int): Movies
-    recommendedMovies(id: ID!, after: Int, size: Int): Movies
+    similarMovies(id: ID!, after: Int, size: Int, page: Int): Movies
+    recommendedMovies(id: ID!, after: Int, size: Int, page: Int): Movies
     videosById(
       id: ID!
       types: [VideoType]
@@ -62,10 +68,14 @@ const typeDefs = gql`
     releaseDate: String
     tagline: String
     runtime: Int
-    genres: [String]
+    genres: [Genre]
     videos(types: [VideoType], after: Int, size: Int, page: Int): VideosByType
   }
 
+  type Genre {
+    id: Int
+    name: String
+  }
   type Video {
     id: String
     key: String
@@ -98,6 +108,7 @@ const typeDefs = gql`
     data: [Movie]
     cursor: Int
     hasMore: Boolean
+    nextPage: Int
   }
 `;
 

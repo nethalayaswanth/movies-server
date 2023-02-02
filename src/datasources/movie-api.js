@@ -10,12 +10,20 @@ class MovieAPI extends RESTDataSource {
     request.params.set("api_key", this.context.apiKey);
   }
 
-  async searchMovies({ page = 1, type,key }) {
+  async searchMovies({ page = 1, key }) {
     const response = await this.get(`/search/movie?query=${key}&page=${page}`);
 
-    return typeof response === "object"
-      ? response.results.map((movie) => this.movieReducer(movie))
-      : [];
+    
+    const currentpage = response.page;
+    const nextPage =
+      currentpage < response.total_pages ? currentpage + 1 : null;
+
+    return typeof response === "object" && response.results
+      ? {
+          nextPage,
+          results: response.results.map((movie) => this.movieReducer(movie)),
+        }
+      : { nextPage: null, results: [] };
   }
   async getMovies({ page = 1, type }) {
     const response = await this.get(`/movie/${type}?page=${page}`);
@@ -40,18 +48,26 @@ class MovieAPI extends RESTDataSource {
       : [];
   }
 
-  async getMoviesByGenre({ genres }) {
+  async getMoviesByGenre({ genres, page = 1 }) {
     const genre = genres.join(",");
 
     var query = new URLSearchParams();
     query.append("with_genres", genre);
     query.append("sort_by", "popularity.desc");
-
+    query.set("page", page);
+    console.log(query.toString());
     const response = await this.get(`/discover/movie?` + query.toString());
 
-    return typeof response === "object"
-      ? response.results.map((movie) => this.movieReducer(movie))
-      : [];
+    const currentpage = response.page;
+    const nextPage =
+      currentpage < response.total_pages ? currentpage + 1 : null;
+
+    return typeof response === "object" && response.results
+      ? {
+          nextPage,
+          results: response.results.map((movie) => this.movieReducer(movie)),
+        }
+      : { nextPage: null, results: [] };
   }
 
   async getMovieById(id) {
@@ -130,7 +146,7 @@ class MovieAPI extends RESTDataSource {
       releaseDate: movie.release_date,
       tagline: movie.tagline,
       runtime: movie.runtime,
-      genres: movie?.genres?.map((genre) => genre.name),
+      genres: movie?.genres,
     };
   }
   ImageReducer(image) {
