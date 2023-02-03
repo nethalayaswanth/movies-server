@@ -18,6 +18,8 @@ const typeDefs = gql`
     UPCOMING
     PLAYING
     TRENDING
+    TOP_RATED
+    NOW_PLAYING
   }
   enum VideoType {
     CLIP

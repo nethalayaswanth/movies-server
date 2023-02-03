@@ -11,7 +11,8 @@ const resolvers = {
   MoviesType: {
     POPULAR: "popular",
     UPCOMING: "upcoming",
-    PLAYING: "now_playing",
+    NOW_PLAYING: "now_playing",
+    TOP_RATED: "top_rated",
   },
   VideoType: {
     CLIP: "Clip",
@@ -24,15 +25,16 @@ const resolvers = {
   Query: {
     search: async (_, { key, after, size = 20, page = 1 }, { dataSources }) => {
       try {
-        const { nextPage, results }  = await dataSources.MovieAPI.searchMovies({ key, page });
+        const { nextPage, results } = await dataSources.MovieAPI.searchMovies({
+          key,
+          page,
+        });
 
         const Movies = paginateResults({ after, size, results });
 
-        console.log(Movies);
 
-         return { ...Movies, nextPage };
+        return { ...Movies, nextPage };
       } catch (e) {
-        
         return null;
       }
     },
@@ -104,13 +106,12 @@ const resolvers = {
             page,
           });
 
-    
+          console.log(results)
 
         const Movies = paginateResults({ after, size, results });
 
         return { ...Movies, nextPage };
       } catch (e) {
-       
         return null;
       }
     },
