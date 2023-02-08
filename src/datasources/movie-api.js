@@ -14,7 +14,7 @@ class MovieAPI extends RESTDataSource {
     const response = await this.get(`/search/movie?query=${key}&page=${page}`);
     return this.responseReducer(response);
   }
-  async getMovies({ page = 1, type, genres, sortBy = "popularity",adult=true }) {
+  async getMovies({ page = 1, type, genres, sortBy = "popularity" }) {
    
 
     // if (!genres || genres.length === 0) {
@@ -69,7 +69,6 @@ class MovieAPI extends RESTDataSource {
       certification_country: "IN",
       page: page,
       ...(genresstring && { with_genres: genresstring }),
-     include_adult :adult,
     };
 
     var query = new URLSearchParams({
