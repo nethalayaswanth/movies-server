@@ -21,6 +21,11 @@ const typeDefs = gql`
     TOP_RATED
     NOW_PLAYING
   }
+  enum sortByType {
+    POPULARITY
+    RELEASE_DATE
+    RATING
+  }
   enum VideoType {
     CLIP
     TRAILER
@@ -31,7 +36,15 @@ const typeDefs = gql`
   }
 
   type Query {
-    movies(type: MoviesType!, after: Int, size: Int, page: Int): Movies
+    movies(
+      type: MoviesType=POPULAR
+      after: Int
+      genres: [Int]
+      size: Int
+      page: Int
+      sortBy: sortByType
+      adult:Boolean
+    ): Movies
     search(key: String!, after: Int, size: Int, page: Int): Movies
     movie(id: ID!): Movie
     seriesList: [Series]
@@ -39,13 +52,7 @@ const typeDefs = gql`
     trendingSeries: [Series]
     trendingMovies(after: Int, size: Int, page: Int): Movies
     trending: [Media]
-    MovieGenre(
-      genres: [String]!
-      after: Int
-      size: Int
-      page: Int
-      page: Int
-    ): Movies
+    MovieGenre(genres: [Int]!, after: Int, size: Int, page: Int): Movies
     latestMovie: [Movie]
     similarMovies(id: ID!, after: Int, size: Int, page: Int): Movies
     recommendedMovies(id: ID!, after: Int, size: Int, page: Int): Movies
@@ -111,6 +118,7 @@ const typeDefs = gql`
     cursor: Int
     hasMore: Boolean
     nextPage: Int
+    page: Int
   }
 `;
 

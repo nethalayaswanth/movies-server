@@ -12,40 +12,88 @@ class MovieAPI extends RESTDataSource {
 
   async searchMovies({ page = 1, key }) {
     const response = await this.get(`/search/movie?query=${key}&page=${page}`);
-
-    
-    const currentpage = response.page;
-    const nextPage =
-      currentpage < response.total_pages ? currentpage + 1 : null;
-
-    return typeof response === "object" && response.results
-      ? {
-          nextPage,
-          results: response.results.map((movie) => this.movieReducer(movie)),
-        }
-      : { nextPage: null, results: [] };
+    return this.responseReducer(response);
   }
-  async getMovies({ page = 1, type }) {
-    const response = await this.get(`/movie/${type}?page=${page}`);
+  async getMovies({ page = 1, type, genres, sortBy = "popularity",adult=true }) {
+   
 
-    return typeof response === "object"
-      ? response.results.map((movie) => this.movieReducer(movie))
-      : [];
+    // if (!genres || genres.length === 0) {
+    //   const response = await this.get(`/movie/${type}?page=${page}`);
+    //   return this.responseReducer(response);
+    // }
+
+    const popular = type === "popular";
+    const upcoming = type === "upcoming";
+    const now_playing = type === "now_playing";
+    const top_rated = type === "top_rated";
+
+    console.log(type,sortBy)
+
+
+    const queryDefaults = { popular: {}, upcoming: {} };
+    const minDate = new Date();
+    const maxDate = new Date();
+    const addMonths = upcoming ? [1, 0] : now_playing ? [0, 0] : [(6, 0)];
+    const addDays = now_playing ? [8, -50] : [0, 0];
+
+    maxDate.setFullYear(
+      maxDate.getFullYear(),
+      maxDate.getMonth() + addMonths[0],
+      maxDate.getDate() + addDays[0]
+    );
+    minDate.setFullYear(
+      minDate.getFullYear(),
+      minDate.getMonth() + addMonths[1],
+      minDate.getDate() + addDays[1]
+    );
+
+    const afterDate =
+      now_playing || upcoming ? minDate.toISOString().split("T")[0] : null;
+    const release_date = {
+      "release_date.lte": maxDate.toISOString().split("T")[0],
+      ...(afterDate && { "release_date.gte": afterDate }),
+    };
+
+    const sortingKeys = {
+      rating: "vote_average.desc",
+      popularity: "popularity.desc",
+      releaseDate: "release_date.desc",
+    };
+    const genresstring = genres ? genres.join(",") : null;
+    const sort_by = sortingKeys[sortBy];
+    const vote_count = { "vote_count.gte": top_rated ? 300 : 0 };
+    const defaults = {
+      "vote_average.lte": 10,
+      "vote_average.gte": 0,
+      ott_region: "IN",
+      certification_country: "IN",
+      page: page,
+      ...(genresstring && { with_genres: genresstring }),
+     include_adult :adult,
+    };
+
+    var query = new URLSearchParams({
+      ...defaults,
+      sort_by,
+      ...vote_count,
+      ...release_date,
+    });
+
+    const response = await this.get(`/discover/movie?` + query.toString());
+
+    // console.log(response)
+
+    return this.responseReducer(response);
   }
   async getTrendingMovies() {
     const response = await this.get(`trending/movie/week`);
 
-    return typeof response === "object"
-      ? response.results.map((movie) => this.movieReducer(movie))
-      : [];
+    return this.responseReducer(response);
   }
 
   async getLatestMovie() {
     const response = await this.get(`trending/movie/day`);
-
-    return typeof response === "object"
-      ? response.results.map((movie) => this.movieReducer(movie))
-      : [];
+    return this.responseReducer(response);
   }
 
   async getMoviesByGenre({ genres, page = 1 }) {
@@ -54,20 +102,13 @@ class MovieAPI extends RESTDataSource {
     var query = new URLSearchParams();
     query.append("with_genres", genre);
     query.append("sort_by", "popularity.desc");
+    query.append("certification_country ", "IN");
+    query.set("vote_average.lte", 10);
+    query.set("ott_region", "IN");
     query.set("page", page);
-    console.log(query.toString());
+
     const response = await this.get(`/discover/movie?` + query.toString());
-
-    const currentpage = response.page;
-    const nextPage =
-      currentpage < response.total_pages ? currentpage + 1 : null;
-
-    return typeof response === "object" && response.results
-      ? {
-          nextPage,
-          results: response.results.map((movie) => this.movieReducer(movie)),
-        }
-      : { nextPage: null, results: [] };
+    return this.responseReducer(response);
   }
 
   async getMovieById(id) {
@@ -75,22 +116,21 @@ class MovieAPI extends RESTDataSource {
 
     return this.movieReducer(response);
   }
-  async getRecommendedMoviesById({ id }) {
+  async getRecommendedMoviesById({ id, page = 1 }) {
     const response = await this.get(
-      `/movie/${id}/recommendations?language=en-US`
+      `/movie/${id}/recommendations?language=en-US&page=${page}`
     );
 
-    return typeof response === "object"
-      ? response.results.map((movie) => this.movieReducer(movie))
-      : [];
+    return this.responseReducer(response);
   }
 
-  async getSimilarMoviesById({ id }) {
-    const response = await this.get(`/movie/${id}/similar`);
+  async getSimilarMoviesById({ id, page = 1 }) {
+    const response = await this.get(
+      `/movie/${id}/similar?language=en-US&page=${page}`
+    );
 
-    return typeof response === "object"
-      ? response.results.map((movie) => this.movieReducer(movie))
-      : [];
+ 
+    return this.responseReducer(response);
   }
 
   async getVideosByMovieId({ id }) {
@@ -124,6 +164,21 @@ class MovieAPI extends RESTDataSource {
     const b = Math.floor(Math.random() * backDrop.length);
     return poster.length !== 0 ? poster[p] : backDrop[b];
   }
+
+  responseReducer(response) {
+    const currentpage = response.page;
+    const nextPage =
+      currentpage < response.total_pages ? currentpage + 1 : null;
+
+    return typeof response === "object" && response.results
+      ? {
+          page: currentpage,
+          nextPage,
+          results: response.results.map((movie) => this.movieReducer(movie)),
+        }
+      : { page: currentpage, nextPage: null, results: [] };
+  }
+
   videoReducer({ id, key, name, size, official, type }) {
     return {
       id,

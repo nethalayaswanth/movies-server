@@ -14,6 +14,11 @@ const resolvers = {
     NOW_PLAYING: "now_playing",
     TOP_RATED: "top_rated",
   },
+  sortByType: {
+    POPULARITY: "popularity",
+    RELEASE_DATE: "releaseDate",
+    RATING: "rating",
+  },
   VideoType: {
     CLIP: "Clip",
     TRAILER: "Trailer",
@@ -25,46 +30,66 @@ const resolvers = {
   Query: {
     search: async (_, { key, after, size = 20, page = 1 }, { dataSources }) => {
       try {
-        const { nextPage, results } = await dataSources.MovieAPI.searchMovies({
+        const response = await dataSources.MovieAPI.searchMovies({
           key,
           page,
         });
 
-        const Movies = paginateResults({ after, size, results });
-
-
-        return { ...Movies, nextPage };
+        return paginateResults({ after, size, response });
       } catch (e) {
         return null;
       }
     },
-    movies: async (_, { type, after, size = 8, page = 1 }, { dataSources }) => {
+    movies: async (
+      _,
+      { type, after, size = 8, page = 1, genres, sortBy,adult, },
+      { dataSources }
+    ) => {
       try {
-        const data = await dataSources.MovieAPI.getMovies({ type: type, page });
-
-        const Movies = paginateResults({ after, size, results: data });
-
-        return Movies;
-      } catch (e) {}
-    },
-    similarMovies: async (_, { id, after, size = 8 }, { dataSources }) => {
-      try {
-        const data = await dataSources.MovieAPI.getSimilarMoviesById({ id });
-
-        const Movies = paginateResults({ after, size, results: data });
-
-        return Movies;
-      } catch (e) {}
-    },
-    recommendedMovies: async (_, { id, after, size = 8 }, { dataSources }) => {
-      try {
-        const data = await dataSources.MovieAPI.getRecommendedMoviesById({
-          id,
+        const response = await dataSources.MovieAPI.getMovies({
+          type: type,
+          page,
+          genres,
+          sortBy,
+          adult,
         });
 
-        const Movies = paginateResults({ after, size, results: data });
+        return paginateResults({ after, size, response });
+      } catch (e) {
+        console.log(e);
+      }
+    },
+    similarMovies: async (
+      _,
+      { id, after, page, size = 8 },
+      { dataSources }
+    ) => {
+      try {
+     
+        const response = await dataSources.MovieAPI.getSimilarMoviesById({
+          id,
+          page,
+        });
+        const results = paginateResults({ after, size, response });
 
-        return Movies;
+        return results;
+      } catch (e) {
+        return defaultResponse;
+      }
+    },
+    recommendedMovies: async (
+      _,
+      { id, page, after, size = 8 },
+      { dataSources }
+    ) => {
+      try {
+        const response = await dataSources.MovieAPI.getRecommendedMoviesById({
+          id,
+          page,
+        });
+        const results = paginateResults({ after, size, response });
+
+        return results;
       } catch (e) {}
     },
     movie: async (_, { id }, { dataSources }) => {
@@ -72,17 +97,15 @@ const resolvers = {
     },
     trendingMovies: async (_, { after, size = 8 }, { dataSources }) => {
       try {
-        const results = await dataSources.MovieAPI.getTrendingMovies();
+        const response = await dataSources.MovieAPI.getTrendingMovies();
 
-        const Movies = paginateResults({ after, size, results });
-
-        return Movies;
+        return paginateResults({ after, size, response });
       } catch (e) {}
     },
 
     latestMovie: async (_, { after, size = 8 }, { dataSources }) => {
-      const results = await dataSources.MovieAPI.getLatestMovie();
-      const { data } = paginateResults({ after, size, results });
+      const response = await dataSources.MovieAPI.getLatestMovie();
+      const { data } = paginateResults({ after, size, response });
       return data;
     },
     seriesList: async (_, args, { dataSources }) => {
@@ -100,17 +123,12 @@ const resolvers = {
       { dataSources }
     ) => {
       try {
-        const { nextPage, results } =
-          await dataSources.MovieAPI.getMoviesByGenre({
-            genres,
-            page,
-          });
+        const response = await dataSources.MovieAPI.getMoviesByGenre({
+          genres,
+          page,
+        });
 
-          console.log(results)
-
-        const Movies = paginateResults({ after, size, results });
-
-        return { ...Movies, nextPage };
+        return paginateResults({ after, size, response });
       } catch (e) {
         return null;
       }
