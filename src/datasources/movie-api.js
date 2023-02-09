@@ -27,8 +27,6 @@ class MovieAPI extends RESTDataSource {
     const now_playing = type === "now_playing";
     const top_rated = type === "top_rated";
 
-    console.log(type,sortBy)
-
 
     const queryDefaults = { popular: {}, upcoming: {} };
     const minDate = new Date();
